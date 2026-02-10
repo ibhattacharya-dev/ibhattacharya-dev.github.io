@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mediafuse Prebid Banner Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    #banner {
+      width: 300px;
+      height: 250px;
+      border: 2px dashed #999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+
+    .loading {
+      color: #777;
+    }
+
+    .error {
+      border-color: #d32f2f;
+      color: #d32f2f;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Mediafuse Prebid Banner Test</h2>
+  <p>Placement: <strong>37151836</strong></p>
+  <p>Sizes: <strong>300x250, 300x50</strong></p>
+
+  <div id="banner" class="loading">
+    Requesting bids…
+  </div>
+
+  <!-- Load Prebid from GitHub Pages -->
+  <script src="https://ibhattacharya-dev.github.io/Prebid-Static-Page-Tests/prebid.js"></script>
+
+  <script>
+    var pbjs = pbjs || {};
+    pbjs.que = pbjs.que || [];
+
+    pbjs.que.push(function () {
+      console.log('Prebid version:', pbjs.version);
+
+      pbjs.addAdUnits([{
+        code: 'banner',
+        mediaTypes: {
+          banner: {
+            sizes: [[300, 250], [300, 50]]
+          }
+        },
+        bids: [{
+          bidder: 'mediafuse',
+          params: {
+            placementId: '37151836'
+          }
+        }]
+      }]);
+
+      pbjs.requestBids({
+        timeout: 3000,
+        bidsBackHandler: function () {
+          var responses = pbjs.getBidResponsesForAdUnitCode('banner');
+          console.log('Bid responses:', responses);
+
+          var el = document.getElementById('banner');
+
+          if (responses && responses.bids && responses.bids.length) {
+            var bid = responses.bids[0];
+
+            console.log('Winning bid:', bid);
+
+            // Normalize modern adapters (adm → ad)
+            var adMarkup = bid.ad || bid.adm;
+
+            if (!adMarkup) {
+              el.className = 'error';
+              el.innerHTML = 'No ad markup returned';
+              return;
+            }
+
+            el.style.width = bid.width + 'px';
+            el.style.height = bid.height + 'px';
+            el.innerHTML = adMarkup;
+            el.className = '';
+          } else {
+            el.className = 'error';
+            el.innerHTML = 'No bids returned';
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
