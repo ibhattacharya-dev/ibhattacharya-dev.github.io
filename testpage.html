@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mediafuse Prebid Test (PB10)</title>
+  <script src="build/dist/prebid.js"></script>
+</head>
+<body>
+  <h1>Mediafuse Test</h1>
+  <div id="ad-slot" style="width:300px;height:250px;border:1px solid #ccc;"></div>
+
+  <script>
+    var adUnits = [{
+      code: 'ad-slot',
+      mediaTypes: {
+        banner: {
+          sizes: [[300, 250]]
+        }
+      },
+      bids: [{
+        bidder: 'mediafuse',
+        params: {
+          placement_id: 13232354
+          //placement_id: 37151836
+        }
+      }]
+    }];
+
+    pbjs.que.push(function () {
+      pbjs.setConfig({ debug: true });
+
+      // IMPORTANT for PB10
+      pbjs.setConfig({
+        bidderSettings: {
+          mediafuse: {
+            enabled: true,
+            storageAllowed: true,
+            allowActivities: {
+              fetch: true,
+              iframe: true,
+              image: true,
+              transmitTid: true,
+              accessDevice: true
+            }
+          }
+        }
+      });
+
+      pbjs.addAdUnits(adUnits);
+
+      pbjs.requestBids({
+        timeout: 3000,
+        bidsBackHandler: function () {
+          const responses = pbjs.getBidResponses();
+          console.log('Bid responses:', responses);
+
+          // PB10 replacement for getAllBids()
+          const allBids = Object.values(responses)
+            .flatMap(r => r.bids);
+          console.log('All bids:', allBids);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
