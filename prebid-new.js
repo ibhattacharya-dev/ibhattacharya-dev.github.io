@@ -1,5 +1,5 @@
 /* prebid.js v10.22.0-pre
-Updated: 2026-02-10
+Updated: 2026-02-11
 Modules: mediafuseBidAdapter */
 if(window.pbjs&&window.pbjs.libLoaded)try{window.pbjs.getConfig("debug")&&console.warn("Attempted to load a copy of Prebid.js that clashes with the existing 'pbjs' instance. Load aborted.")}catch(e){}else (function(){
 (()=>{var t,e={1490:(t,e,r)=>{function n(t){var e,r,o;if(Array.isArray(t)){for(r=Array(e=t.length);e--;)r[e]=(o=t[e])&&"object"==typeof o?n(o):o;return r}if("[object Object]"===Object.prototype.toString.call(t)){for(e in r={},t)"__proto__"===e?Object.defineProperty(r,e,{value:n(t[e]),configurable:!0,enumerable:!0,writable:!0}):r[e]=(o=t[e])&&"object"==typeof o?n(o):o;return r}return t}r.d(e,{Q:()=>n})},3435:(t,e,r)=>{function n(t,e,r){e.split&&(e=e.split("."));for(var n,o,i=0,a=e.length,f=t;i<a&&"__proto__"!=(o=""+e[i++])&&"constructor"!==o&&"prototype"!==o;)f=f[o]=i===a?r:typeof(n=f[o])==typeof e?n:0*e[i]!=0||~(""+e[i]).indexOf(".")?{}:[]}r.d(e,{J:()=>n})},3715:(t,e,r)=>{r.d(e,{A:()=>n});const n={pbGlobal:"pbjs",defineGlobal:!0,features:{NATIVE:!0,VIDEO:!0,UID2_CSTG:!0,GREEDY:!1,AUDIO:!0,LOG_NON_ERROR:!0,LOG_ERROR:!0},distUrlBase:"https://cdn.jsdelivr.net/npm/prebid.js@latest/dist/chunks/",skipCalls:{}}},5481:t=>{
