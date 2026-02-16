@@ -1,101 +1,173 @@
-<!--
-  This page calls a single bidder for a single ad slot. It can be considered a "hello world" example for using
-  Prebid with the Google Publisher Tag.
-  It also makes a good test page for new adapter PR submissions. Simply set your server's Bid Params object in the
-  bids array inside the adUnits, and it will use your adapter to load an ad.
-  NOTE that many ad servers won't send back an ad if the URL is localhost... so you might need to
-  set an alias in your /etc/hosts file so that you can load this page from a different domain.
--->
-
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <script src="./prebid-n2.js"></script>
-    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
-    <script>
-        var FAILSAFE_TIMEOUT = 5300;
-        var PREBID_TIMEOUT = 3000;
+<meta charset="UTF-8" />
+<title>Mediafuse Prebid Multi-Format Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        var adUnits = [{
-            code: 'div-gpt-ad-1460505748561-0',
-            mediaTypes: {
-                banner: {
-                    sizes: [[300, 250]],
-                }
-            },
+<style>
+body {
+font-family: Arial, sans-serif;
+padding: 40px;
+background: #f5f5f5;
+}
 
-            // Replace this object to test a new Adapter!
-            bids: [{
-  bidder: 'mediafuse',
-  params: {
-    placementId: 37151837
-  }
-}]
+h2 { margin-top: 40px; }
 
-        }];
+.slot {
+border: 2px dashed #999;
+background: #fff;
+padding: 10px;
+margin-bottom: 30px;
+}
 
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
+#banner { width: 300px; height: 250px; }
+#video { width: 640px; height: 360px; }
+#native { width: 300px; }
 
-    </script>
-
-    <script>
-        var googletag = googletag || {};
-        googletag.cmd = googletag.cmd || [];
-        googletag.cmd.push(function () {
-            googletag.pubads().disableInitialLoad();
-        });
-
-        pbjs.que.push(function () {
-            pbjs.addAdUnits(adUnits);
-
-            pbjs.requestBids({
-                bidsBackHandler: sendAdserverRequest,
-                timeout: PREBID_TIMEOUT
-            });
-        });
-
-        function sendAdserverRequest() {
-            if (pbjs.adserverRequestSent) return;
-            pbjs.adserverRequestSent = true;
-            googletag.cmd.push(function () {
-                if (pbjs.libLoaded) {
-                    pbjs.que.push(function () {
-                        pbjs.setTargetingForGPTAsync();
-                        googletag.pubads().refresh();
-                    });
-                } else {
-                    googletag.pubads().refresh();
-                }
-            });
-        }
-
-        setTimeout(function () {
-            sendAdserverRequest();
-        }, FAILSAFE_TIMEOUT);
-
-    </script>
-
-    <script>
-        googletag.cmd.push(function () {
-            googletag.defineSlot('/19968336/header-bid-tag-0', [[300, 250], [300, 600]], 'div-gpt-ad-1460505748561-0').addService(googletag.pubads());
-
-            googletag.pubads().enableSingleRequest();
-            googletag.enableServices();
-        });
-    </script>
+.error { border-color: #d32f2f; color: #d32f2f; }
+</style>
 </head>
 
 <body>
-    <h2>Prebid.js Test</h2>
-    <h5>Div-1</h5>
-    <div id='div-gpt-ad-1460505748561-0'>
-        <script type='text/javascript'>
-            googletag.cmd.push(function () { googletag.display('div-gpt-ad-1460505748561-0'); });
-        </script>
-    </div>
+
+<h1>Mediafuse Prebid Multi-Format Test</h1>
+
+<!-- ================= BANNER ================= -->
+<h2>Banner Test (37151836 / 37151837)</h2>
+<div id="banner" class="slot">Requesting banner bid…</div>
+
+<!-- ================= VIDEO ================= -->
+<h2>Video Test (37151841 / 37151839 / 37151840)</h2>
+<div id="video" class="slot">Requesting video bid…</div>
+
+<!-- ================= NATIVE ================= -->
+<h2>Native Test (37151838)</h2>
+<div id="native" class="slot">Requesting native bid…</div>
+
+<script src="./prebid-n3.js"></script>
+
+<script>
+var pbjs = pbjs || {};
+pbjs.que = pbjs.que || [];
+
+pbjs.que.push(function () {
+
+console.log("Prebid version:", pbjs.version);
+
+pbjs.addAdUnits([
+/* ================= BANNER ================= */
+{
+code: 'banner',
+mediaTypes: {
+banner: { sizes: [[300, 250], [300, 50]] }
+},
+bids: [{
+bidder: 'mediafuse',
+params: { placementId: '37151837' }
+}]
+},
+
+/* ================= VIDEO ================= */
+{
+code: 'video',
+mediaTypes: {
+video: {
+context: 'instream',
+playerSize: [640, 360],
+mimes: ['video/mp4'],
+protocols: [2,3,5,6],
+api: [2],
+playbackmethod: [1]
+}
+},
+bids: [{
+bidder: 'mediafuse',
+params: { placementId: '37151841' }
+}]
+},
+
+/* ================= NATIVE ================= */
+{
+code: 'native',
+mediaTypes: {
+native: {
+title: { required: true, len: 80 },
+image: { required: true, sizes: [150, 150] },
+sponsoredBy: { required: true }
+}
+},
+bids: [{
+bidder: 'mediafuse',
+params: { placementId: '37151838' }
+}]
+}
+]);
+
+pbjs.requestBids({
+timeout: 3000,
+bidsBackHandler: renderAds
+});
+
+});
+
+function renderAds() {
+
+/* ================= BANNER RENDER ================= */
+var bannerResp = pbjs.getBidResponsesForAdUnitCode('banner');
+if (bannerResp && bannerResp.bids.length) {
+var bid = bannerResp.bids[0];
+document.getElementById('banner').innerHTML = bid.ad || bid.adm;
+} else {
+document.getElementById('banner').innerHTML = "No banner bid";
+document.getElementById('banner').className += " error";
+}
+
+/* ================= VIDEO RENDER ================= */
+var videoResp = pbjs.getBidResponsesForAdUnitCode('video');
+if (videoResp && videoResp.bids.length) {
+var bid = videoResp.bids[0];
+
+if (bid.vastXml) {
+document.getElementById('video').innerHTML =
+"<pre style='font-size:10px;overflow:auto'>" +
+bid.vastXml.replace(/</g,"&lt;") +
+"</pre>";
+} else if (bid.vastUrl) {
+document.getElementById('video').innerHTML =
+"<video controls width='640'><source src='" +
+bid.vastUrl +
+"' type='video/mp4'></video>";
+} else {
+document.getElementById('video').innerHTML = "Video bid returned but no VAST";
+}
+} else {
+document.getElementById('video').innerHTML = "No video bid";
+document.getElementById('video').className += " error";
+}
+
+/* ================= NATIVE RENDER ================= */
+var nativeResp = pbjs.getBidResponsesForAdUnitCode('native');
+if (nativeResp && nativeResp.bids.length) {
+var bid = nativeResp.bids[0];
+
+if (bid.native) {
+var n = bid.native;
+document.getElementById('native').innerHTML =
+"<h3>" + n.title + "</h3>" +
+"<img src='" + n.image.url + "' width='150'><br>" +
+"<p><strong>" + n.sponsoredBy + "</strong></p>";
+} else {
+document.getElementById('native').innerHTML = "Native object missing";
+}
+} else {
+document.getElementById('native').innerHTML = "No native bid";
+document.getElementById('native').className += " error";
+}
+
+}
+</script>
+
 </body>
-
 </html>
-
 
