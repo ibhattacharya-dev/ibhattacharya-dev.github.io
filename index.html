@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Mediafuse Prebid Adapter Multi-Format Test</title>
+<title>Mediafuse Prebid Multi-Format Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
@@ -18,6 +18,7 @@ h2 { margin-top: 40px; }
   background: #fff;
   padding: 10px;
   margin-bottom: 30px;
+  position: relative;
 }
 
 #banner { width: 300px; height: 250px; }
@@ -30,7 +31,7 @@ h2 { margin-top: 40px; }
 
 <body>
 
-<h1>Mediafuse Adapter Test</h1>
+<h1>Mediafuse Prebid Multi-Format Test</h1>
 
 <h2>Banner Test</h2>
 <div id="banner" class="slot"></div>
@@ -41,6 +42,7 @@ h2 { margin-top: 40px; }
 <h2>Native Test</h2>
 <div id="native" class="slot"></div>
 
+<!-- Your Prebid build -->
 <script src="./prebid-new-adapter-n2.js"></script>
 
 <script>
@@ -50,6 +52,12 @@ pbjs.que = pbjs.que || [];
 pbjs.que.push(function () {
 
   console.log("Prebid version:", pbjs.version);
+
+  // 🔥 CRITICAL FIX FOR YOUR ERROR
+  pbjs.setConfig({
+    debug: true,
+    useSrcdoc: false
+  });
 
   pbjs.addAdUnits([
 
@@ -118,7 +126,7 @@ function renderAds() {
     var bid = bannerResp.bids[0];
     console.log("Banner bid:", bid);
 
-    // ✅ Correct way to render script creatives
+    // Proper rendering method
     pbjs.renderAd(document.getElementById('banner'), bid.adId);
 
   } else {
@@ -135,7 +143,6 @@ function renderAds() {
     console.log("Video bid:", bid);
 
     if (bid.vastUrl) {
-      // Basic VAST loader using iframe
       document.getElementById('video').innerHTML =
         "<iframe width='640' height='360' frameborder='0' " +
         "src='" + bid.vastUrl + "' allow='autoplay'></iframe>";
