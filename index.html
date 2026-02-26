@@ -2,23 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Mediafuse Prebid Multi-Format Test</title>
+<title>Mediafuse Prebid Adapter Multi-Format Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
 body {
-font-family: Arial, sans-serif;
-padding: 40px;
-background: #f5f5f5;
+  font-family: Arial, sans-serif;
+  padding: 40px;
+  background: #f5f5f5;
 }
-
 h2 { margin-top: 40px; }
 
 .slot {
-border: 2px dashed #999;
-background: #fff;
-padding: 10px;
-margin-bottom: 30px;
+  border: 2px dashed #999;
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 30px;
 }
 
 #banner { width: 300px; height: 250px; }
@@ -31,19 +30,16 @@ margin-bottom: 30px;
 
 <body>
 
-<h1>Mediafuse Prebid Multi-Format Test</h1>
+<h1>Mediafuse Adapter Test</h1>
 
-<!-- ================= BANNER ================= -->
-<h2>Banner Test (37151836 / 37151837)</h2>
-<div id="banner" class="slot">Requesting banner bid…</div>
+<h2>Banner Test</h2>
+<div id="banner" class="slot"></div>
 
-<!-- ================= VIDEO ================= -->
-<h2>Video Test (37151841 / 37151839 / 37151840)</h2>
-<div id="video" class="slot">Requesting video bid…</div>
+<h2>Video Test (Instream)</h2>
+<div id="video" class="slot"></div>
 
-<!-- ================= NATIVE ================= -->
-<h2>Native Test (37151838)</h2>
-<div id="native" class="slot">Requesting native bid…</div>
+<h2>Native Test</h2>
+<div id="native" class="slot"></div>
 
 <script src="./prebid-new-adapter-n2.js"></script>
 
@@ -53,124 +49,140 @@ pbjs.que = pbjs.que || [];
 
 pbjs.que.push(function () {
 
-console.log("Prebid version:", pbjs.version);
+  console.log("Prebid version:", pbjs.version);
 
-pbjs.addAdUnits([
-/* ================= BANNER ================= */
-{
-code: 'banner',
-mediaTypes: {
-banner: { sizes: [[300, 250], [300, 50]] }
-},
-bids: [{
-bidder: 'mediafuse',
-params: { placementId: '37151837' }
-}]
-},
+  pbjs.addAdUnits([
 
-/* ================= VIDEO ================= */
-{
-code: 'video',
-mediaTypes: {
-video: {
-context: 'instream',
-playerSize: [640, 360],
-mimes: ['video/mp4'],
-protocols: [2,3,5,6],
-api: [2],
-playbackmethod: [1]
-}
-},
-bids: [{
-bidder: 'mediafuse',
-params: { placementId: '37151841' }
-}]
-},
+    /* ================= BANNER ================= */
+    {
+      code: 'banner',
+      mediaTypes: {
+        banner: { sizes: [[300, 250]] }
+      },
+      bids: [{
+        bidder: 'mediafuse',
+        params: { placementId: '37151837' }
+      }]
+    },
 
-/* ================= NATIVE ================= */
-{
-code: 'native',
-mediaTypes: {
-native: {
-title: { required: true, len: 80 },
-image: { required: true, sizes: [150, 150] },
-sponsoredBy: { required: true }
-}
-},
-bids: [{
-bidder: 'mediafuse',
-params: { placementId: '37151838' }
-}]
-}
-]);
+    /* ================= VIDEO ================= */
+    {
+      code: 'video',
+      mediaTypes: {
+        video: {
+          context: 'instream',
+          playerSize: [640, 360],
+          mimes: ['video/mp4'],
+          protocols: [2,3,5,6],
+          api: [2],
+          playbackmethod: [1]
+        }
+      },
+      bids: [{
+        bidder: 'mediafuse',
+        params: { placementId: '37151841' }
+      }]
+    },
 
-pbjs.requestBids({
-timeout: 3000,
-bidsBackHandler: renderAds
-});
+    /* ================= NATIVE ================= */
+    {
+      code: 'native',
+      mediaTypes: {
+        native: {
+          title: { required: true, len: 80 },
+          image: { required: true, sizes: [150, 150] },
+          sponsoredBy: { required: true }
+        }
+      },
+      bids: [{
+        bidder: 'mediafuse',
+        params: { placementId: '37151838' }
+      }]
+    }
+
+  ]);
+
+  pbjs.requestBids({
+    timeout: 3000,
+    bidsBackHandler: renderAds
+  });
 
 });
 
 function renderAds() {
 
-/* ================= BANNER RENDER ================= */
-var bannerResp = pbjs.getBidResponsesForAdUnitCode('banner');
-if (bannerResp && bannerResp.bids.length) {
-var bid = bannerResp.bids[0];
-document.getElementById('banner').innerHTML = bid.ad || bid.adm;
-} else {
-document.getElementById('banner').innerHTML = "No banner bid";
-document.getElementById('banner').className += " error";
-}
+  /* ================= BANNER ================= */
+  var bannerResp = pbjs.getBidResponsesForAdUnitCode('banner');
 
-/* ================= VIDEO RENDER ================= */
-var videoResp = pbjs.getBidResponsesForAdUnitCode('video');
-if (videoResp && videoResp.bids.length) {
-var bid = videoResp.bids[0];
+  if (bannerResp && bannerResp.bids.length) {
+    var bid = bannerResp.bids[0];
+    console.log("Banner bid:", bid);
 
-if (bid.vastXml) {
-document.getElementById('video').innerHTML =
-"<pre style='font-size:10px;overflow:auto'>" +
-bid.vastXml.replace(/</g,"&lt;") +
-"</pre>";
-} else if (bid.vastUrl) {
-document.getElementById('video').innerHTML =
-"<video controls width='640'><source src='" +
-bid.vastUrl +
-"' type='video/mp4'></video>";
-} else {
-document.getElementById('video').innerHTML = "Video bid returned but no VAST";
-}
-} else {
-document.getElementById('video').innerHTML = "No video bid";
-document.getElementById('video').className += " error";
-}
+    // ✅ Correct way to render script creatives
+    pbjs.renderAd(document.getElementById('banner'), bid.adId);
 
-/* ================= NATIVE RENDER ================= */
-var nativeResp = pbjs.getBidResponsesForAdUnitCode('native');
-if (nativeResp && nativeResp.bids.length) {
-var bid = nativeResp.bids[0];
+  } else {
+    document.getElementById('banner').innerHTML = "No banner bid";
+    document.getElementById('banner').classList.add("error");
+  }
 
-if (bid.native) {
-var n = bid.native;
-document.getElementById('native').innerHTML =
-"<h3>" + n.title + "</h3>" +
-"<img src='" + n.image.url + "' width='150'><br>" +
-"<p><strong>" + n.sponsoredBy + "</strong></p>";
-} else {
-document.getElementById('native').innerHTML = "Native object missing";
-}
-} else {
-document.getElementById('native').innerHTML = "No native bid";
-document.getElementById('native').className += " error";
-}
+
+  /* ================= VIDEO ================= */
+  var videoResp = pbjs.getBidResponsesForAdUnitCode('video');
+
+  if (videoResp && videoResp.bids.length) {
+    var bid = videoResp.bids[0];
+    console.log("Video bid:", bid);
+
+    if (bid.vastUrl) {
+      // Basic VAST loader using iframe
+      document.getElementById('video').innerHTML =
+        "<iframe width='640' height='360' frameborder='0' " +
+        "src='" + bid.vastUrl + "' allow='autoplay'></iframe>";
+    }
+    else if (bid.vastXml) {
+      document.getElementById('video').innerHTML =
+        "<pre style='font-size:10px;overflow:auto'>" +
+        bid.vastXml.replace(/</g,"&lt;") +
+        "</pre>";
+    }
+    else {
+      document.getElementById('video').innerHTML = "Video bid returned but no VAST";
+    }
+
+  } else {
+    document.getElementById('video').innerHTML = "No video bid";
+    document.getElementById('video').classList.add("error");
+  }
+
+
+  /* ================= NATIVE ================= */
+  var nativeResp = pbjs.getBidResponsesForAdUnitCode('native');
+
+  if (nativeResp && nativeResp.bids.length) {
+    var bid = nativeResp.bids[0];
+    console.log("Native bid:", bid);
+
+    if (bid.native) {
+      var n = bid.native;
+
+      document.getElementById('native').innerHTML =
+        "<h3>" + n.title + "</h3>" +
+        "<img src='" + n.image.url + "' width='150'><br>" +
+        "<p><strong>" + n.sponsoredBy + "</strong></p>" +
+        "<a href='" + n.clickUrl + "' target='_blank'>Learn More</a>";
+
+    } else {
+      document.getElementById('native').innerHTML = "Native object missing";
+    }
+
+  } else {
+    document.getElementById('native').innerHTML = "No native bid";
+    document.getElementById('native').classList.add("error");
+  }
 
 }
 </script>
 
 </body>
 </html>
-
-
-
-
