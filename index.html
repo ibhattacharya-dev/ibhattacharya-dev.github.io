@@ -119,21 +119,33 @@ pbjs.que.push(function () {
 
 function renderAds() {
 
-  /* ================= BANNER ================= */
-  var bannerResp = pbjs.getBidResponsesForAdUnitCode('banner');
+/* ================= BANNER ================= New*/
+var bannerResp = pbjs.getBidResponsesForAdUnitCode('banner');
 
-  if (bannerResp && bannerResp.bids.length) {
-    var bid = bannerResp.bids[0];
-    console.log("Banner bid:", bid);
+if (bannerResp && bannerResp.bids.length) {
+  var bid = bannerResp.bids[0];
+  console.log("Banner bid:", bid);
 
-    // Proper rendering method
-    pbjs.renderAd(document.getElementById('banner'), bid.adId);
+  var bannerContainer = document.getElementById('banner');
+  bannerContainer.innerHTML = '';
 
-  } else {
-    document.getElementById('banner').innerHTML = "No banner bid";
-    document.getElementById('banner').classList.add("error");
-  }
+  var iframe = document.createElement('iframe');
+  iframe.width = bid.width || 300;
+  iframe.height = bid.height || 250;
+  iframe.style.border = "0";
+  iframe.setAttribute("scrolling", "no");
 
+  bannerContainer.appendChild(iframe);
+
+  var doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(bid.ad);
+  doc.close();
+
+} else {
+  document.getElementById('banner').innerHTML = "No banner bid";
+  document.getElementById('banner').classList.add("error");
+}
 
   /* ================= VIDEO ================= */
   var videoResp = pbjs.getBidResponsesForAdUnitCode('video');
@@ -193,3 +205,4 @@ function renderAds() {
 
 </body>
 </html>
+
