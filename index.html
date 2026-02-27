@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <title>Mediafuse Prebid Multi-Format Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -12,7 +11,6 @@ body {
   background: #f5f5f5;
 }
 h2 { margin-top: 40px; }
-
 .slot {
   border: 2px dashed #999;
   background: #fff;
@@ -20,40 +18,26 @@ h2 { margin-top: 40px; }
   margin-bottom: 30px;
   position: relative;
 }
-
 #banner { width: 300px; height: 250px; }
 #video { width: 640px; height: 360px; }
 #native { width: 300px; }
-
 .error { border-color: #d32f2f; color: #d32f2f; }
 </style>
 </head>
-
 <body>
-
 <h1>Mediafuse Prebid Multi-Format Test</h1>
-
 <h2>Banner Test</h2>
 <div id="banner" class="slot"></div>
-
 <h2>Video Test (Instream)</h2>
 <div id="video" class="slot"></div>
-
 <h2>Native Test</h2>
 <div id="native" class="slot"></div>
-
-<!-- Your Prebid build -->
 <script src="./prebid-new-adapter-n2.js"></script>
-
 <script>
 var pbjs = pbjs || {};
 pbjs.que = pbjs.que || [];
-
 pbjs.que.push(function () {
-
   console.log("Prebid version:", pbjs.version);
-
-  // 🔥 CRITICAL FIX FOR YOUR ERROR
   pbjs.setConfig({
     debug: true,
     useSrcdoc: false
@@ -91,7 +75,6 @@ pbjs.que.push(function () {
         params: { placementId: '37151841' }
       }]
     },
-
     /* ================= NATIVE ================= */
     {
       code: 'native',
@@ -107,46 +90,35 @@ pbjs.que.push(function () {
         params: { placementId: '37151838' }
       }]
     }
-
   ]);
-
   pbjs.requestBids({
     timeout: 3000,
     bidsBackHandler: renderAds
   });
-
 });
-
 function renderAds() {
-
 /* ================= BANNER ================= New*/
 var bannerResp = pbjs.getBidResponsesForAdUnitCode('banner');
 
 if (bannerResp && bannerResp.bids.length) {
   var bid = bannerResp.bids[0];
   console.log("Banner bid:", bid);
-
   var bannerContainer = document.getElementById('banner');
   bannerContainer.innerHTML = '';
-
   var iframe = document.createElement('iframe');
   iframe.width = bid.width || 300;
   iframe.height = bid.height || 250;
   iframe.style.border = "0";
   iframe.setAttribute("scrolling", "no");
-
   bannerContainer.appendChild(iframe);
-
   var doc = iframe.contentWindow.document;
   doc.open();
   doc.write(bid.ad);
   doc.close();
-
 } else {
   document.getElementById('banner').innerHTML = "No banner bid";
   document.getElementById('banner').classList.add("error");
 }
-
   /* ================= VIDEO ================= */
   var videoResp = pbjs.getBidResponsesForAdUnitCode('video');
 
@@ -168,41 +140,33 @@ if (bannerResp && bannerResp.bids.length) {
     else {
       document.getElementById('video').innerHTML = "Video bid returned but no VAST";
     }
-
   } else {
     document.getElementById('video').innerHTML = "No video bid";
     document.getElementById('video').classList.add("error");
   }
-
-
   /* ================= NATIVE ================= */
   var nativeResp = pbjs.getBidResponsesForAdUnitCode('native');
-
   if (nativeResp && nativeResp.bids.length) {
     var bid = nativeResp.bids[0];
     console.log("Native bid:", bid);
-
     if (bid.native) {
       var n = bid.native;
-
       document.getElementById('native').innerHTML =
         "<h3>" + n.title + "</h3>" +
         "<img src='" + n.image.url + "' width='150'><br>" +
         "<p><strong>" + n.sponsoredBy + "</strong></p>" +
         "<a href='" + n.clickUrl + "' target='_blank'>Learn More</a>";
-
     } else {
       document.getElementById('native').innerHTML = "Native object missing";
     }
-
   } else {
     document.getElementById('native').innerHTML = "No native bid";
     document.getElementById('native').classList.add("error");
   }
-
 }
 </script>
 
 </body>
 </html>
+
 
